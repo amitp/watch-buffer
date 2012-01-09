@@ -39,9 +39,9 @@
   (remhash file *watched-buffers))
 
 (defun should-reload ()
-  (setq my-shell-command (gethash (buffer-file-name) *watched-buffers))
-  (if (not (equal my-shell-command nil))
-      (async-shell-command my-shell-command "*Watch-Process*")))
+  (let ((my-shell-command (gethash (buffer-file-name) *watched-buffers)))
+    (if (not (equal my-shell-command nil))
+	(async-shell-command my-shell-command "*Watch-Process*"))))
 
 (defun watch-buffer ()
   (interactive)
