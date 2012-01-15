@@ -43,18 +43,20 @@
     (if (not (equal my-shell-command nil))
 	(async-shell-command my-shell-command "*Watch-Process*"))))
 
-(defun watch-buffer ()
-  (interactive)
-  (add-to-watcher (buffer-file-name) (read-from-minibuffer "What command do you want: " ))
-  "Function to add a buffer to the *watched-buffers hash, with the command to be run")
+(defun watch-buffer (command)
+  "Function to add a buffer to the *watched-buffers hash, with the command to be run"
+  (interactive "sWhat command do you want: ")
+  (add-to-watcher (buffer-file-name) command))
 
 (defun unwatch-buffer ()
+  "Function to remove a buffer from the *watched-buffers hash."
   (interactive)
-  (remove-from-watcher (buffer-file-name))
-  "Function to remove a buffer from the *watched-buffers hash.")
+  (remove-from-watcher (buffer-file-name)))
 
 (defun add-after-save-hook ()
   (add-hook 'after-save-hook 'should-reload)
   "Add the watch-buffers check to the after-save-hook")
 
 (add-after-save-hook)
+
+(provide 'watch-buffer)
