@@ -19,20 +19,21 @@
 
 ;;; Commentary:
 ;;
-;; This extension provides a way to connect updating a buffer with running a shell command
-;; So you can have a shell script which makes and runs a c program, and then you would
+;; This extension provides a way to run a shell command after updating a buffer.
+;; So you can have a shell script which makes and runs a C program, and then you would
 ;; M-x watch-buffer, enter the shell script to run, and every time you save the file it
-;; will run the shell script asynchronously in a seperate buffer
-
-(defgroup watch-buffer nil
-  "Watching buffers, and running commands"
-  :group 'watch)
+;; will run the shell script asynchronously in a separate buffer.
+;;
+;; (watch-command "<command>") and (unwatch-command) can also be called from elisp,
+;; and will operate on the current buffer.  Use `with-current-buffer' to invoke them
+;; on other buffers.
 
 (defvar watch-buffer-command nil
   "Command to run when this buffer is saved. Do not set this directly; call watch-buffer.")
 (make-variable-buffer-local 'watch-buffer-command)
 
 (defun watch-buffer-run-command ()
+  "Function called by after-save-hook, only on buffers being watched."
   (when watch-buffer-command
     (async-shell-command watch-buffer-command "*Watch-Process*")))
 
