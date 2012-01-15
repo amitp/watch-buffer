@@ -24,39 +24,28 @@
 ;; M-x watch-buffer, enter the shell script to run, and every time you save the file it
 ;; will run the shell script asynchronously in a seperate buffer
 
-
 (defgroup watch-buffer nil
   "Watching buffers, and running commands"
   :group 'watch)
 
-(defvar *watched-buffers #s(hash-table size 100 test equal data())
-  "Hash that holds the buffers to watch, and the commands to run")
+(defvar watch-buffer-command nil
+  "Command to run when this buffer is saved. Do not set this directly; call watch-buffer.")
+(make-variable-buffer-local 'watch-buffer-command)
 
-(defun add-to-watcher (file command)
-  (puthash file command *watched-buffers))
-
-(defun remove-from-watcher (file)
-  (remhash file *watched-buffers))
-
-(defun should-reload ()
-  (let ((my-shell-command (gethash (buffer-file-name) *watched-buffers)))
-    (if (not (equal my-shell-command nil))
-	(async-shell-command my-shell-command "*Watch-Process*"))))
+(defun watch-buffer-run-command ()
+  (when watch-buffer-command
+    (async-shell-command watch-buffer-command "*Watch-Process*")))
 
 (defun watch-buffer (command)
-  "Function to add a buffer to the *watched-buffers hash, with the command to be run"
+  "Run a command when the current buffer is saved"
   (interactive "sWhat command do you want: ")
-  (add-to-watcher (buffer-file-name) command))
+  (setq watch-buffer-command command)
+  (add-hook 'after-save-hook 'watch-buffer-run-command))
 
 (defun unwatch-buffer ()
-  "Function to remove a buffer from the *watched-buffers hash."
+  "Don't run a command when the current buffer is saved"
   (interactive)
-  (remove-from-watcher (buffer-file-name)))
-
-(defun add-after-save-hook ()
-  (add-hook 'after-save-hook 'should-reload)
-  "Add the watch-buffers check to the after-save-hook")
-
-(add-after-save-hook)
+  (setq watch-buffer-command nil)
+  (remove-hook 'after-save-hook 'watch-buffer-run-command))
 
 (provide 'watch-buffer)
