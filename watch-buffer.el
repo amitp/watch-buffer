@@ -33,7 +33,7 @@
 (make-variable-buffer-local 'watch-buffer-command)
 
 (defun watch-buffer-run-command ()
-  "Function called by after-save-hook, only on buffers being watched."
+  "Function called by after-save-hook. Runs command if buffer being watched."
   (when watch-buffer-command
     (async-shell-command watch-buffer-command "*Watch-Process*")))
 
@@ -41,12 +41,12 @@
   "Run a command when the current buffer is saved"
   (interactive "sWhat command do you want: ")
   (setq watch-buffer-command command)
-  (add-hook 'after-save-hook 'watch-buffer-run-command))
+  (add-hook 'after-save-hook 'watch-buffer-run-command t t))
 
 (defun unwatch-buffer ()
   "Don't run a command when the current buffer is saved"
   (interactive)
   (setq watch-buffer-command nil)
-  (remove-hook 'after-save-hook 'watch-buffer-run-command))
+  (remove-hook 'after-save-hook 'watch-buffer-run-command t))
 
 (provide 'watch-buffer)
